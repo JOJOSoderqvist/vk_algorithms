@@ -3,6 +3,9 @@
 #include <iostream>
 #include <vector>
 
+#define PRINT_ARRAY_INFO(array) std::cout << "Size: " << array.getSize() << ", Capacity: " << array.getCapacity() << std::endl;
+
+
 template<typename T>
 class DynamicArray {
 private:
@@ -23,6 +26,7 @@ private:
         assert(index >= 0 && index < _size && _data != nullptr);
         return _data[index];
     }
+
 
 public:
     DynamicArray() : _data(nullptr), _size(0), _capacity(0) {}
@@ -73,7 +77,11 @@ public:
 
     [[nodiscard]] constexpr T operator[](int index) const { return getAt(index); }
 
-    [[nodiscard]] constexpr T& front() const { return _data[0]; }
+    [[nodiscard]] constexpr T& front() const {
+        Iterator a;
+
+        return _data[0];
+    }
 
     [[nodiscard]] constexpr T& back() const { return _data[_size - 1]; }
 
@@ -108,15 +116,11 @@ public:
         _data[_size++] = data;
     }
 
-    constexpr void printArray() {
-        for (int i = 0; i < _size; ++i) {
-            std::cout << _data[i] << ' ';
-        }
-        std::cout << std::endl;
-    }
-
-    constexpr void clear(){
-        this->~DynamicArray();
+    constexpr void pop_back() {
+        if (_size == 0)
+            return;
+        _data[_size - 1] = 0;
+        --_size;
     }
 
     constexpr void swap(DynamicArray<T>& right){
@@ -124,7 +128,34 @@ public:
         std::swap(_capacity, right._capacity);
         std::swap(_data, right._data);
     }
+
+    constexpr void clear(){
+        this->~DynamicArray();
+    }
+
+    constexpr void printArray() {
+        for (int i = 0; i < _size; ++i) {
+            std::cout << _data[i] << ' ';
+        }
+        std::cout << std::endl;
+    }
+
+    class Iterator {
+    private:
+        T* _iter;
+    public:
+        Iterator(){
+           _iter = nullptr;
+        }
+        ~Iterator(){
+            _iter = nullptr;
+        }
+        T& operator*() {
+            return;
+        }
+    };
 };
+
 
 int main() {
     DynamicArray<int> array;
@@ -132,12 +163,14 @@ int main() {
     array.push_back(2);
     array.push_back(3);
 
-    DynamicArray<int> second_array;
-    second_array.push_back(4);
-    second_array.push_back(5);
-    second_array.push_back(6);
-    array.swap(second_array);
+    array.pop_back();
 
-    array.printArray();
-    second_array.printArray();
+    array.pop_back();
+    array.pop_back();
+    array.pop_back();
+    PRINT_ARRAY_INFO(array)
+    std::vector<int> a;
+    std::vector<int>::iterator x;
+
+    DynamicArray<int>::Iterator t = array.front();
 }
