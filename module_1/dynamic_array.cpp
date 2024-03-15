@@ -42,7 +42,10 @@ public:
     }
 
     ~DynamicArray() {
+        _size = 0;
+        _capacity = 0;
         delete[] _data;
+        _data = nullptr;
     }
 
     bool operator==(const DynamicArray<T> &right) {
@@ -68,28 +71,28 @@ public:
         return *this;
     }
 
-    [[nodiscard]] T operator[](int index) const { return getAt(index); }
+    [[nodiscard]] constexpr T operator[](int index) const { return getAt(index); }
 
-    [[nodiscard]] T& front() const { return _data[0]; }
+    [[nodiscard]] constexpr T& front() const { return _data[0]; }
 
-    [[nodiscard]] T& back() const { return _data[_size - 1]; }
+    [[nodiscard]] constexpr T& back() const { return _data[_size - 1]; }
 
-    [[nodiscard]] T* data() const { return front(); }
+    [[nodiscard]] constexpr T* data() const { return &front(); }
 
-    [[nodiscard]] size_t getSize() const { return _size; }
+    [[nodiscard]] constexpr size_t getSize() const { return _size; }
 
-    [[nodiscard]] size_t getCapacity() const { return _capacity; }
+    [[nodiscard]] constexpr size_t getCapacity() const { return _capacity; }
 
-    [[nodiscard]] bool isEmpty() const { return _size == 0; }
+    [[nodiscard]] constexpr bool isEmpty() const { return _size == 0; }
 
-    void reserve(size_t capacity){
+    constexpr void reserve(size_t capacity){
         if (_capacity == 0) {
             _capacity = capacity;
             _data = new T[_capacity];
             return;
         }
         if (capacity > _capacity){
-            T* temp_data = new T[capacity];
+            T *temp_data = new T[capacity];
             _capacity = capacity;
             std::copy(_data, _data + _size, temp_data);
             delete _data;
@@ -98,32 +101,43 @@ public:
     }
 
 
-    void oush_back(T data) {
+    constexpr void push_back(T data) {
         if (_size == _capacity)
             addCapacity();
         assert(_size < _capacity && _data != nullptr);
         _data[_size++] = data;
     }
 
-    void printArray() {
+    constexpr void printArray() {
         for (int i = 0; i < _size; ++i) {
             std::cout << _data[i] << ' ';
         }
         std::cout << std::endl;
     }
+
+    constexpr void clear(){
+        this->~DynamicArray();
+    }
+
+    constexpr void swap(DynamicArray<T>& right){
+        std::swap(_size, right._size);
+        std::swap(_capacity, right._capacity);
+        std::swap(_data, right._data);
+    }
 };
 
 int main() {
-//    DynamicArray<int> array;
-//    array.reserve(10);
-//    array.oush_back(23);
-//    array.oush_back(12);
-//    array.oush_back(12);
-//    array.oush_back(12);
-//
-//    std::cout << array.getSize() << ' ' << array.getCapacity() << ' ' << array.data();
-//
-//    array.reserve(50);
-//    std::cout << '\n';
-//    std::cout << array.getSize() << ' ' << array.getCapacity() << ' ' << array.data();
+    DynamicArray<int> array;
+    array.push_back(1);
+    array.push_back(2);
+    array.push_back(3);
+
+    DynamicArray<int> second_array;
+    second_array.push_back(4);
+    second_array.push_back(5);
+    second_array.push_back(6);
+    array.swap(second_array);
+
+    array.printArray();
+    second_array.printArray();
 }
