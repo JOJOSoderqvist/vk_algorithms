@@ -29,6 +29,75 @@ private:
 
 
 public:
+    class Iterator {
+    private:
+        T *_iter;
+    public:
+        Iterator() { _iter = nullptr; }
+
+        explicit Iterator(T *data) { _iter = data; }
+
+        ~Iterator() { _iter = nullptr; }
+
+        T &operator*() { return *_iter; }
+
+        const T &operator*() const { return *_iter; }
+
+        Iterator &operator=(const Iterator &other) {
+            if (this == &other) {
+                return *this;
+            }
+            _iter = other._iter;
+            return *this;
+        }
+
+        Iterator &operator++() {
+            ++_iter;
+            return *this;
+        }
+
+        Iterator &operator--() {
+            --_iter;
+            return *this;
+        }
+
+        Iterator &operator+=(size_t size) {
+            _iter += size;
+            return *this;
+        }
+
+        Iterator &operator-=(size_t size) {
+            _iter -= size;
+            return *this;
+        }
+
+        Iterator operator+(size_t size) {
+            Iterator temp = *this;
+            temp._iter += size;
+            return temp;
+        }
+
+        Iterator operator-(size_t size) {
+            Iterator temp = *this;
+            temp._iter -= size;
+            return temp;
+        }
+
+        Iterator &operator[](size_t size) { return *(_iter + size); }
+
+        bool operator==(const Iterator &other) { return _iter == other._iter; }
+
+        bool operator!=(const Iterator &other) { return _iter != other._iter; }
+
+        bool operator<(const Iterator &other) const { return _iter < other._iter; }
+
+        bool operator>(const Iterator &other) const { return _iter > other._iter; }
+
+        bool operator<=(const Iterator &other) const { return _iter <= other._iter; }
+
+        bool operator>=(const Iterator &other) const { return _iter >= other._iter; }
+    };
+
     DynamicArray() : _data(nullptr), _size(0), _capacity(0) {}
 
     DynamicArray(const DynamicArray<T> &array) {
@@ -77,15 +146,11 @@ public:
 
     [[nodiscard]] constexpr T operator[](int index) const { return getAt(index); }
 
-    [[nodiscard]] constexpr T& front() const {
-        Iterator a;
+    [[nodiscard]] constexpr Iterator begin() const { return Iterator(_data); }
 
-        return _data[0];
-    }
+    [[nodiscard]] constexpr Iterator end() const { return Iterator(&_data[_size]); }
 
-    [[nodiscard]] constexpr T& back() const { return _data[_size - 1]; }
-
-    [[nodiscard]] constexpr T* data() const { return &front(); }
+    [[nodiscard]] constexpr T *data() const { return _data; }
 
     [[nodiscard]] constexpr size_t getSize() const { return _size; }
 
@@ -93,13 +158,13 @@ public:
 
     [[nodiscard]] constexpr bool isEmpty() const { return _size == 0; }
 
-    constexpr void reserve(size_t capacity){
+    constexpr void reserve(size_t capacity) {
         if (_capacity == 0) {
             _capacity = capacity;
             _data = new T[_capacity];
             return;
         }
-        if (capacity > _capacity){
+        if (capacity > _capacity) {
             T *temp_data = new T[capacity];
             _capacity = capacity;
             std::copy(_data, _data + _size, temp_data);
@@ -107,7 +172,6 @@ public:
             _data = temp_data;
         }
     }
-
 
     constexpr void push_back(T data) {
         if (_size == _capacity)
@@ -123,13 +187,13 @@ public:
         --_size;
     }
 
-    constexpr void swap(DynamicArray<T>& right){
+    constexpr void swap(DynamicArray<T> &right) {
         std::swap(_size, right._size);
         std::swap(_capacity, right._capacity);
         std::swap(_data, right._data);
     }
 
-    constexpr void clear(){
+    constexpr void clear() {
         this->~DynamicArray();
     }
 
@@ -139,21 +203,6 @@ public:
         }
         std::cout << std::endl;
     }
-
-    class Iterator {
-    private:
-        T* _iter;
-    public:
-        Iterator(){
-           _iter = nullptr;
-        }
-        ~Iterator(){
-            _iter = nullptr;
-        }
-        T& operator*() {
-            return;
-        }
-    };
 };
 
 
@@ -162,15 +211,6 @@ int main() {
     array.push_back(1);
     array.push_back(2);
     array.push_back(3);
-
-    array.pop_back();
-
-    array.pop_back();
-    array.pop_back();
-    array.pop_back();
+    DynamicArray<int>::Iterator start = array.begin();
     PRINT_ARRAY_INFO(array)
-    std::vector<int> a;
-    std::vector<int>::iterator x;
-
-    DynamicArray<int>::Iterator t = array.front();
 }
