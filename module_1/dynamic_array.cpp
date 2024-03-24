@@ -5,7 +5,6 @@
 
 #define PRINT_ARRAY_INFO(array) std::cout << "Size: " << array.getSize() << ", Capacity: " << array.getCapacity() << std::endl;
 
-
 template<typename T>
 class DynamicArray {
 private:
@@ -22,12 +21,6 @@ private:
         _capacity = new_capacity;
     }
 
-    [[nodiscard]] T getAt(int index) const {
-        assert(index >= 0 && index < _size && _data != nullptr);
-        return _data[index];
-    }
-
-
 public:
     class Iterator {
     private:
@@ -42,6 +35,8 @@ public:
         T &operator*() { return *_iter; }
 
         const T &operator*() const { return *_iter; }
+
+        void clear(){ this->~Iterator(); }
 
         Iterator &operator=(const Iterator &other) {
             if (this == &other) {
@@ -107,11 +102,13 @@ public:
         std::copy(array._data, array._data + array._size, _data);
     }
 
-    DynamicArray(const T &array, size_t size) {
+    DynamicArray(const T value, size_t size) {
         _size = size;
         _capacity = _size;
         _data = new T[_capacity];
-        std::copy(array._data, array._data + array._size, _data);
+        for (int i = 0; i < _size; ++i) {
+            _data[i] = 0;
+        }
     }
 
     ~DynamicArray() {
@@ -144,7 +141,10 @@ public:
         return *this;
     }
 
-    [[nodiscard]] constexpr T operator[](int index) const { return getAt(index); }
+    [[nodiscard]] constexpr T& operator[](int index) const {
+        assert(index >= 0 && index < _size && _data != nullptr);
+        return _data[index];
+    }
 
     [[nodiscard]] constexpr Iterator begin() const { return Iterator(_data); }
 
@@ -207,10 +207,10 @@ public:
 
 
 int main() {
-    DynamicArray<int> array;
-    array.push_back(1);
-    array.push_back(2);
-    array.push_back(3);
-    DynamicArray<int>::Iterator start = array.begin();
+    DynamicArray<int> array(0, 2);
     PRINT_ARRAY_INFO(array)
+    std::cout << '\n';
+    for (const auto elem:array) {
+        std::cout << elem;
+    }
 }
