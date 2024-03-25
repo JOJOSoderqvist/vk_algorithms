@@ -210,7 +210,7 @@ public:
 template<typename T>
 struct DefaultComparator {
     bool operator()(const T &left, const T &right) const {
-        return left < right;
+        return left > right;
     }
 };
 
@@ -254,7 +254,7 @@ struct Descriptor{
     bool operator==(const Descriptor<T> &other) { return _array[_index] == other._array[other._index]; }
 
     bool operator!=(const Descriptor<T> &other) { return _array[_index] != other._array[other._index]; }
-
+//[1, 2], [3, 4]
     bool operator<(const Descriptor<T> &other) const { return _array[_index] < other._array[other._index]; }
 
     bool operator>(const Descriptor<T> &other) const { return _array[_index] > other._array[other._index]; }
@@ -365,9 +365,9 @@ int main() {
     parseIO(std::cin, std::cout, heap);
     std::cout << heap.top()._array[heap.top()._index] << ' ';
     std::cout << heap.top()._array[heap.top()._index + 1] << ' ';
-    std::cout << heap.top()._array[heap.top()._index + 2] << ' ';
     heap.pop();
     std::cout << heap.top()._array[heap.top()._index] << ' ';
+    std::cout << heap.top()._array[heap.top()._index + 1] << ' ';
 
     return 0;
 }
