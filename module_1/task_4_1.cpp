@@ -36,7 +36,7 @@ public:
 
         const T &operator*() const { return *_iter; }
 
-        void clear(){ this->~Iterator(); }
+        void clear() { this->~Iterator(); }
 
         Iterator &operator=(const Iterator &other) {
             if (this == &other) {
@@ -141,7 +141,7 @@ public:
         return *this;
     }
 
-    [[nodiscard]] constexpr T& operator[](int index) const {
+    [[nodiscard]] constexpr T &operator[](int index) const {
         assert(index >= 0 && index < _size && _data != nullptr);
         return _data[index];
     }
@@ -183,7 +183,8 @@ public:
     constexpr void pop_back() {
         if (_size == 0)
             return;
-        _data[_size - 1] = 0;
+        //_data[_size - 1] = 0;
+
         --_size;
     }
 
@@ -207,50 +208,166 @@ public:
 
 
 template<typename T>
-struct DefaultComparator{
-    bool operator()(const T& left, const T& right) const {
+struct DefaultComparator {
+    bool operator()(const T &left, const T &right) const {
         return left < right;
+    }
+};
+
+
+template<typename T>
+struct XDDComparator {
+    bool operator()(const T &left, const T &right) const {
+        return left > right;
     }
 };
 
 template<typename T>
 struct Descriptor{
-    T* array;
-    size_t index;
+    T *_array;
+    size_t _index;
+
+    Descriptor() : _array(nullptr), _index(0){}
+
+    explicit Descriptor(T* array){
+        _array = array;
+        _index = 0;
+    }
 
     ~Descriptor(){
-        delete array;
-        array = nullptr;
-        index  = 0;
+        _array = nullptr;
     }
+
+    [[nodiscard]] constexpr T &operator[](int idx) const {
+        //assert(idx >= 0 && idx < _array && _array != nullptr); ///TODO: ????
+        return &_array[idx];
+    }
+
+//    Descriptor& operator=(const Descriptor<T>& other) {
+//        if (this != &other) {
+//            _array = other._array;
+//            _index = other._index;
+//        }
+//        return *this;
+//    }
+
+    bool operator==(const Descriptor<T> &other) { return _array[_index] == other._array[other._index]; }
+
+    bool operator!=(const Descriptor<T> &other) { return _array[_index] != other._array[other._index]; }
+
+    bool operator<(const Descriptor<T> &other) const { return _array[_index] < other._array[other._index]; }
+
+    bool operator>(const Descriptor<T> &other) const { return _array[_index] > other._array[other._index]; }
+
+    bool operator<=(const Descriptor<T> &other) const { return _array[_index] <= other._array[other._index]; }
+
+    bool operator>=(const Descriptor<T> &other) const { return _array[_index] >= other._array[other._index]; }
 };
 
 template<typename T, typename Comparator = DefaultComparator<T>>
-class Heap{
+class Heap {
 private:
-    Descriptor<T> descriptor;
+    DynamicArray<T> _array;
+    Comparator _comparator;
 
-    void grow();
-    void sift_up();
-    void sift_down(); //heapify
-public:
-    explicit Heap(Comparator comparator = Comparator());
-    Heap(size_t size, Comparator comparator = Comparator());
-
-    ~Heap(){
-        delete descriptor;
+    void siftUp(int index) {
+        while (index > 0) {
+            int parent = (index - 1 ) / 2;
+            if (_comparator(_array[index], _array[parent]))
+                return;
+            std::swap(_array[index], _array[parent]);
+            index = parent;
+        }
     }
 
-    Heap(const Heap& heap);
-    Heap(Heap&&) = delete;
+    void siftDown(int index) {
+        int left = 2 * index + 1;
+        int right = 2 * index + 2;
+        int actual = index;
+        if (left < _array.getSize() && !_comparator(_array[left], _array[index]))
+            actual = left;
+        if (right < _array.getSize() && !_comparator(_array[right], _array[actual]))
+            actual = right;
+        if (actual != index) {
+            std::swap(_array[index], _array[actual]);
+            siftDown(actual);
+        }
+    }
 
-    Heap& operator=(const Heap& heap);
+public:
+    explicit Heap(Comparator comparator = Comparator()) {
+        _comparator = comparator;
+    }
 
-    const T& top() const;
-    void push(const Descriptor<T>& descriptor);
-    void pop();
+    Heap(size_t size, Comparator comparator = Comparator()) {
+        _comparator = comparator;
+        _array.reserve(size);
+    }
+
+    explicit Heap(const DynamicArray<T> &array, Comparator comparator = Comparator()) {
+        _array = array;
+        _comparator = comparator;
+        for (int i = this->_array.getSize() / 2 - 1; i >= 0; --i)
+            siftDown(i);
+    }
+
+    Heap(const Heap &heap) = delete;
+
+    Heap(Heap &&) = delete;
+
+    ~Heap() {
+        _array.clear();
+    }
+
+    Heap &operator=(const Heap &heap) = delete;
+
+    Heap &operator=(Heap &&heap) = delete;
+
+    [[nodiscard]] const T& top() const {
+        return _array[0];
+    }
+
+    void push(const T& element) {
+        _array.push_back(element);
+        siftUp(_array.getSize() - 1);
+    }
+
+
+    void pop() {
+        if (!_array.isEmpty()){
+            /// TODO: OWN STD SWAP -> temp descriptor
+            std::swap(_array[0], _array[_array.getSize() - 1]);
+            _array.pop_back();
+            if( !_array.isEmpty() ) {
+                siftDown(0);
+            }
+        }
+    }
 };
 
-int main(){
+void parseIO(std::istream& input_stream, std::ostream& output_stream, Heap<Descriptor<int>>& heap){
+    int array_count, array_size, element;
+    input_stream >> array_count;
+    for (int i = 0; i < array_count; ++i) {
+        input_stream >> array_size;
+        int* temp_array = new int[array_size];
+        for (int j = 0; j < array_size; ++j) {
+            input_stream >> element;
+            temp_array[j] = element;
+        }
+        Descriptor<int> descriptor(temp_array);
+        heap.push(descriptor);
+    }
+}
 
+int main() {
+    Heap<Descriptor<int>> heap;
+    parseIO(std::cin, std::cout, heap);
+    std::cout << heap.top()._array[heap.top()._index] << ' ';
+    std::cout << heap.top()._array[heap.top()._index + 1] << ' ';
+    std::cout << heap.top()._array[heap.top()._index + 2] << ' ';
+    heap.pop();
+    std::cout << heap.top()._array[heap.top()._index] << ' ';
+
+    return 0;
 }
