@@ -232,6 +232,7 @@ struct DefaultComparator {
 };
 
 
+
 template<typename T>
 struct XDDComparator {
     bool operator()(const T &left, const T &right) const {
@@ -370,6 +371,12 @@ public:
         }
     }
 };
+
+bool operator<(const pair<Descriptor<int>, int>& lhs, const pair<Descriptor<int>, int>& rhs) {
+    return lhs._first < rhs._first;
+}
+
+
 
 Heap<pair<Descriptor<int>, int>> parseHeapFromIO(std::istream& input_stream){
     int array_count, array_size, element;
