@@ -5,6 +5,24 @@
 
 #define PRINT_ARRAY_INFO(array) std::cout << "Size: " << array.getSize() << ", Capacity: " << array.getCapacity() << std::endl;
 
+template<typename T1, typename T2>
+struct pair{
+    T1 _first;
+    T2 _second;
+
+    pair() = default;
+
+    pair(T1 first, T2 second){
+        this->makePair(first, second);
+    }
+
+    void makePair(T1 first, T2 second){
+        _first = first;
+        _second = second;
+    }
+};
+
+
 template<typename T>
 class DynamicArray {
 private:
@@ -184,7 +202,6 @@ public:
         if (_size == 0)
             return;
         //_data[_size - 1] = 0;
-
         --_size;
     }
 
@@ -210,7 +227,7 @@ public:
 template<typename T>
 struct DefaultComparator {
     bool operator()(const T &left, const T &right) const {
-        return left > right;
+        return left < right;
     }
 };
 
@@ -239,7 +256,7 @@ struct Descriptor{
     }
 
     [[nodiscard]] constexpr T &operator[](int idx) const {
-        //assert(idx >= 0 && idx < _array && _array != nullptr); ///TODO: ????
+        assert(idx >= 0 && idx < _index && _array != nullptr);
         return &_array[idx];
     }
 
@@ -311,7 +328,10 @@ public:
             siftDown(i);
     }
 
-    Heap(const Heap &heap) = delete;
+    Heap(const Heap &other){
+        this->_comparator = other._comparator;
+        this->_array = other._array;
+    }
 
     Heap(Heap &&) = delete;
 
@@ -319,7 +339,13 @@ public:
         _array.clear();
     }
 
-    Heap &operator=(const Heap &heap) = delete;
+    Heap &operator=(const Heap &other){
+        if (this != &other){
+            this->_array = other._array;
+            this->_comparator = other._comparator;
+        }
+        return *this;
+    }
 
     Heap &operator=(Heap &&heap) = delete;
 
@@ -345,8 +371,9 @@ public:
     }
 };
 
-void parseIO(std::istream& input_stream, std::ostream& output_stream, Heap<Descriptor<int>>& heap){
+Heap<pair<Descriptor<int>, int>> parseHeapFromIO(std::istream& input_stream){
     int array_count, array_size, element;
+    Heap<pair<Descriptor<int>, int>> resulting_heap;
     input_stream >> array_count;
     for (int i = 0; i < array_count; ++i) {
         input_stream >> array_size;
@@ -356,18 +383,12 @@ void parseIO(std::istream& input_stream, std::ostream& output_stream, Heap<Descr
             temp_array[j] = element;
         }
         Descriptor<int> descriptor(temp_array);
-        heap.push(descriptor);
+        pair<Descriptor<int>, int> logical_pair(descriptor, array_size);
+        resulting_heap.push(logical_pair);
     }
+    return resulting_heap;
 }
 
 int main() {
-    Heap<Descriptor<int>> heap;
-    parseIO(std::cin, std::cout, heap);
-    std::cout << heap.top()._array[heap.top()._index] << ' ';
-    std::cout << heap.top()._array[heap.top()._index + 1] << ' ';
-    heap.pop();
-    std::cout << heap.top()._array[heap.top()._index] << ' ';
-    std::cout << heap.top()._array[heap.top()._index + 1] << ' ';
-
     return 0;
 }

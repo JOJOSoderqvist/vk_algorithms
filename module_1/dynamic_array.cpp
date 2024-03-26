@@ -5,6 +5,24 @@
 
 #define PRINT_ARRAY_INFO(array) std::cout << "Size: " << array.getSize() << ", Capacity: " << array.getCapacity() << std::endl;
 
+template<typename T1, typename T2>
+struct pair{
+    T1 _first;
+    T2 _second;
+
+    pair() = default;
+
+    pair(T1 first, T2 second){
+        this->makePair(first, second);
+    }
+
+    void makePair(T1 first, T2 second){
+        _first = first;
+        _second = second;
+    }
+};
+
+
 template<typename T>
 class DynamicArray {
 private:
@@ -183,7 +201,7 @@ public:
     constexpr void pop_back() {
         if (_size == 0)
             return;
-        _data[_size - 1] = 0;
+        //_data[_size - 1] = 0;
         --_size;
     }
 
@@ -207,10 +225,18 @@ public:
 
 
 int main() {
-    DynamicArray<int> array(0, 2);
-    PRINT_ARRAY_INFO(array)
-    std::cout << '\n';
-    for (const auto elem:array) {
-        std::cout << elem;
+//    DynamicArray<int> array(0, 2);
+//    PRINT_ARRAY_INFO(array)
+//    std::cout << '\n';
+//    for (const auto elem:array) {
+//        std::cout << elem;
+//    }
+
+
+    DynamicArray<pair<int, int>> a;
+    a.push_back({1, 2});
+    a.push_back({2, 3});
+    for (auto elem: a) {
+        std::cout << elem._first << ' ' << elem._second;
     }
 }
