@@ -430,6 +430,8 @@ void solve(Heap<pair<Descriptor<int>, int>> &heap, std::ostream &stream) {
         if (smallest._first._index + 1 < smallest._second) {
             smallest._first._index++;
             heap.push(smallest);
+        } else {
+            delete smallest._first._array;
         }
     }
 }
