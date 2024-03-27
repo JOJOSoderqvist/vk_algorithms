@@ -6,17 +6,17 @@
 #define PRINT_ARRAY_INFO(array) std::cout << "Size: " << array.getSize() << ", Capacity: " << array.getCapacity() << std::endl;
 
 template<typename T1, typename T2>
-struct pair{
-    T1 _first;
-    T2 _second;
+struct pair {
+    T1 _first{};
+    T2 _second{};
 
     pair() = default;
 
-    pair(T1 first, T2 second){
+    pair(T1 first, T2 second) {
         this->makePair(first, second);
     }
 
-    void makePair(T1 first, T2 second){
+    void makePair(T1 first, T2 second) {
         _first = first;
         _second = second;
     }
@@ -129,6 +129,16 @@ public:
         }
     }
 
+    DynamicArray(DynamicArray<T> &&other) noexcept {
+        _data = other._data;
+        _size = other._size;
+        _capacity = other._capacity;
+
+        other._data = nullptr;
+        other._capacity = 0;
+        other._size = 0;
+    }
+
     ~DynamicArray() {
         _size = 0;
         _capacity = 0;
@@ -156,6 +166,20 @@ public:
         _capacity = right._capacity;
         _data = new T[_capacity];
         std::copy(right._data, right._data + right._size, _data);
+        return *this;
+    }
+
+
+    DynamicArray<T> &operator=(DynamicArray<T> &&other) noexcept {
+        if (this != &other) {
+            delete[] _data;
+            _data = other._data;
+            _size = other._size;
+            _capacity = other._capacity;
+            other._data = nullptr;
+            other._size = 0;
+            other._capacity = 0;
+        }
         return *this;
     }
 
@@ -227,32 +251,23 @@ public:
 template<typename T>
 struct DefaultComparator {
     bool operator()(const T &left, const T &right) const {
-        return left < right;
-    }
-};
-
-
-
-template<typename T>
-struct XDDComparator {
-    bool operator()(const T &left, const T &right) const {
         return left > right;
     }
 };
 
 template<typename T>
-struct Descriptor{
+struct Descriptor {
     T *_array;
     size_t _index;
 
-    Descriptor() : _array(nullptr), _index(0){}
+    Descriptor() : _array(nullptr), _index(0) {}
 
-    explicit Descriptor(T* array){
+    explicit Descriptor(T *array) {
         _array = array;
         _index = 0;
     }
 
-    ~Descriptor(){
+    ~Descriptor() {
         _array = nullptr;
     }
 
@@ -261,18 +276,10 @@ struct Descriptor{
         return &_array[idx];
     }
 
-//    Descriptor& operator=(const Descriptor<T>& other) {
-//        if (this != &other) {
-//            _array = other._array;
-//            _index = other._index;
-//        }
-//        return *this;
-//    }
-
     bool operator==(const Descriptor<T> &other) { return _array[_index] == other._array[other._index]; }
 
     bool operator!=(const Descriptor<T> &other) { return _array[_index] != other._array[other._index]; }
-//[1, 2], [3, 4]
+
     bool operator<(const Descriptor<T> &other) const { return _array[_index] < other._array[other._index]; }
 
     bool operator>(const Descriptor<T> &other) const { return _array[_index] > other._array[other._index]; }
@@ -290,7 +297,7 @@ private:
 
     void siftUp(int index) {
         while (index > 0) {
-            int parent = (index - 1 ) / 2;
+            int parent = (index - 1) / 2;
             if (_comparator(_array[index], _array[parent]))
                 return;
             std::swap(_array[index], _array[parent]);
@@ -329,19 +336,22 @@ public:
             siftDown(i);
     }
 
-    Heap(const Heap &other){
+    Heap(const Heap &other) {
         this->_comparator = other._comparator;
         this->_array = other._array;
     }
 
-    Heap(Heap &&) = delete;
+    Heap(Heap &&other) noexcept {
+        _array = std::move(other._array);
+        _comparator = std::move(other._comparator);
+    }
 
     ~Heap() {
         _array.clear();
     }
 
-    Heap &operator=(const Heap &other){
-        if (this != &other){
+    Heap &operator=(const Heap &other) {
+        if (this != &other) {
             this->_array = other._array;
             this->_comparator = other._comparator;
         }
@@ -350,41 +360,55 @@ public:
 
     Heap &operator=(Heap &&heap) = delete;
 
-    [[nodiscard]] const T& top() const {
+    [[nodiscard]] const T &top() const {
         return _array[0];
     }
 
-    void push(const T& element) {
+    void push(const T &element) {
         _array.push_back(element);
         siftUp(_array.getSize() - 1);
     }
 
 
     void pop() {
-        if (!_array.isEmpty()){
-            /// TODO: OWN STD SWAP -> temp descriptor
+        if (!_array.isEmpty()) {
             std::swap(_array[0], _array[_array.getSize() - 1]);
             _array.pop_back();
-            if( !_array.isEmpty() ) {
+            if (!_array.isEmpty()) {
                 siftDown(0);
             }
         }
     }
+
+    bool isEmpty() {
+        return _array.isEmpty();
+    }
 };
 
-bool operator<(const pair<Descriptor<int>, int>& lhs, const pair<Descriptor<int>, int>& rhs) {
+bool operator<(const pair<Descriptor<int>, int> &lhs, const pair<Descriptor<int>, int> &rhs) {
     return lhs._first < rhs._first;
 }
 
+bool operator>(const pair<Descriptor<int>, int> &lhs, const pair<Descriptor<int>, int> &rhs) {
+    return lhs._first > rhs._first;
+}
+
+bool operator<=(const pair<Descriptor<int>, int> &lhs, const pair<Descriptor<int>, int> &rhs) {
+    return lhs._first <= rhs._first;
+}
+
+bool operator>=(const pair<Descriptor<int>, int> &lhs, const pair<Descriptor<int>, int> &rhs) {
+    return lhs._first >= rhs._first;
+}
 
 
-Heap<pair<Descriptor<int>, int>> parseHeapFromIO(std::istream& input_stream){
+Heap<pair<Descriptor<int>, int>> parseHeapFromIO(std::istream &input_stream) {
     int array_count, array_size, element;
     Heap<pair<Descriptor<int>, int>> resulting_heap;
     input_stream >> array_count;
     for (int i = 0; i < array_count; ++i) {
         input_stream >> array_size;
-        int* temp_array = new int[array_size];
+        int *temp_array = new int[array_size];
         for (int j = 0; j < array_size; ++j) {
             input_stream >> element;
             temp_array[j] = element;
@@ -396,6 +420,21 @@ Heap<pair<Descriptor<int>, int>> parseHeapFromIO(std::istream& input_stream){
     return resulting_heap;
 }
 
+void solve(Heap<pair<Descriptor<int>, int>> &heap, std::ostream &stream) {
+    while (!heap.isEmpty()) {
+        pair<Descriptor<int>, int> smallest = heap.top();
+        heap.pop();
+
+        stream << smallest._first._array[smallest._first._index] << ' ';
+
+        if (smallest._first._index + 1 < smallest._second) {
+            smallest._first._index++;
+            heap.push(smallest);
+        }
+    }
+}
+
 int main() {
-    return 0;
+    Heap<pair<Descriptor<int>, int>> heap = parseHeapFromIO(std::cin);
+    solve(heap, std::cout);
 }

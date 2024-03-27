@@ -129,6 +129,30 @@ public:
         }
     }
 
+    DynamicArray(DynamicArray<T> && other) noexcept {
+        _data = other._data;
+        _size = other._size;
+        _capacity = other._capacity;
+
+        other._data = nullptr;
+        other._capacity = 0;
+        other._size = 0;
+    }
+
+
+    DynamicArray<T>& operator=(DynamicArray<T>&& other) noexcept {
+        if (this != &other) {
+            delete[] _data;
+            _data = other._data;
+            _size = other._size;
+            _capacity = other._capacity;
+            other._data = nullptr;
+            other._size = 0;
+            other._capacity = 0;
+        }
+        return *this;
+    }
+
     ~DynamicArray() {
         _size = 0;
         _capacity = 0;
