@@ -1,6 +1,7 @@
+#pragma once
 #include <cassert>
 
-template<typename T>
+template <typename T>
 class DynamicArray {
 private:
     T *_data;
@@ -20,6 +21,7 @@ public:
     class Iterator {
     private:
         T *_iter;
+
     public:
         Iterator() { _iter = nullptr; }
 
@@ -145,7 +147,6 @@ public:
         std::copy(right._data, right._data + right._size, _data);
         return *this;
     }
-
 
     DynamicArray<T> &operator=(DynamicArray<T> &&other) noexcept {
         if (this != &other) {

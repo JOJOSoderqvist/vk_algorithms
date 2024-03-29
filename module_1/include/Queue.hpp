@@ -1,3 +1,4 @@
+#pragma once
 #include "DynamicArray.hpp"
 
 class Queue {
@@ -6,15 +7,16 @@ private:
     int head;
     int tail;
     int array_size;
+
 public:
     explicit Queue(int size) : head(0), tail(0), array_size(size), array(0, size) {}
-    ~Queue(){
+    ~Queue() {
         array.clear();
         head = 0;
         tail = 0;
     }
 
-    void Enqueue(int elem){
+    void Enqueue(int elem) {
         array[tail] = elem;
         ++tail;
         if (tail == array_size) {
@@ -22,7 +24,7 @@ public:
         }
     }
 
-    int Dequeue(){
+    int Dequeue() {
         if (head == tail) {
             return -1;
         }

@@ -3,9 +3,7 @@
 #include <cstddef>
 #include <iostream>
 
-
-
-template<typename T>
+template <typename T>
 struct Descriptor {
     T *_array;
     size_t _index;
@@ -55,7 +53,6 @@ bool operator>=(const Pair<Descriptor<int>, int> &lhs, const Pair<Descriptor<int
     return lhs._first >= rhs._first;
 }
 
-
 Heap<Pair<Descriptor<int>, int>> parseHeapFromIO(std::istream &input_stream) {
     int array_count, array_size, element;
     Heap<Pair<Descriptor<int>, int>> resulting_heap;
@@ -90,7 +87,9 @@ void solve(Heap<Pair<Descriptor<int>, int>> &heap, std::ostream &stream) {
     }
 }
 
-void IO(std::istream &input_stream, std::ostream &output_stream) {
-    Heap<Pair<Descriptor<int>, int>> heap = parseHeapFromIO(input_stream);
-    solve(heap, output_stream);
+namespace task_4_1 {
+    void IO(std::istream &input_stream, std::ostream &output_stream) {
+        Heap<Pair<Descriptor<int>, int>> heap = parseHeapFromIO(input_stream);
+        solve(heap, output_stream);
+    }
 }

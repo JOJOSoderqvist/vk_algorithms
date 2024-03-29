@@ -1,14 +1,14 @@
 #pragma once
-
 #include "DynamicArray.hpp"
-template<typename T>
+
+template <typename T>
 struct DefaultComparator {
     bool operator()(const T &left, const T &right) const {
         return left > right;
     }
 };
 
-template<typename T, typename Comparator = DefaultComparator<T>>
+template <typename T, typename Comparator = DefaultComparator<T>>
 class Heap {
 private:
     DynamicArray<T> _array;
@@ -87,7 +87,6 @@ public:
         _array.push_back(element);
         siftUp(_array.getSize() - 1);
     }
-
 
     void pop() {
         if (!_array.isEmpty()) {
