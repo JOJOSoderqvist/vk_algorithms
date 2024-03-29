@@ -92,30 +92,29 @@ public:
 
     DynamicArray() : _data(nullptr), _size(0), _capacity(0) {}
 
-    DynamicArray(const DynamicArray<T> &array) {
-        _size = array._size;
-        _capacity = array._capacity;
+    DynamicArray(const DynamicArray<T> &array) : _size(array._size), _capacity(array._capacity) {
         _data = new T[_capacity];
         std::copy(array._data, array._data + array._size, _data);
     }
 
-    DynamicArray(const T value, size_t size) {
-        _size = size;
-        _capacity = _size;
+    DynamicArray(const T value, size_t size) : _size(size), _capacity(size) {
         _data = new T[_capacity];
         for (int i = 0; i < _size; ++i) {
             _data[i] = 0;
         }
     }
 
-    DynamicArray(DynamicArray<T> &&other) noexcept {
-        _data = other._data;
-        _size = other._size;
-        _capacity = other._capacity;
-
+    DynamicArray(DynamicArray<T> &&other) noexcept : _data(other._data), _size(other._size), _capacity(other._capacity) {
         other._data = nullptr;
         other._capacity = 0;
         other._size = 0;
+    }
+
+    DynamicArray(size_t size) : _size(size), _capacity(size) {
+        _data = new T[_capacity];
+        // for (int i = 0; i < _size; ++i) {
+        //     _data[i] = 0;
+        // }
     }
 
     ~DynamicArray() {
@@ -193,14 +192,14 @@ public:
         }
     }
 
-    constexpr void push_back(T data) {
+    constexpr void pushBack(T data) {
         if (_size == _capacity)
             addCapacity();
         assert(_size < _capacity && _data != nullptr);
         _data[_size++] = data;
     }
 
-    constexpr void pop_back() {
+    constexpr void popBack() {
         if (_size == 0)
             return;
         //_data[_size - 1] = 0;
@@ -215,12 +214,5 @@ public:
 
     constexpr void clear() {
         this->~DynamicArray();
-    }
-
-    constexpr void printArray() {
-        for (int i = 0; i < _size; ++i) {
-            std::cout << _data[i] << ' ';
-        }
-        std::cout << std::endl;
     }
 };

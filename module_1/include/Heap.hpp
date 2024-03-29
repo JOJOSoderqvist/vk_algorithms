@@ -39,26 +39,18 @@ private:
     }
 
 public:
-    explicit Heap(Comparator comparator = Comparator()) {
-        _comparator = comparator;
-    }
+    explicit Heap(Comparator comparator = Comparator()) : _comparator(comparator) { }
 
-    Heap(size_t size, Comparator comparator = Comparator()) {
-        _comparator = comparator;
+    Heap(size_t size, Comparator comparator = Comparator()) : _comparator(comparator) {
         _array.reserve(size);
     }
 
-    explicit Heap(const DynamicArray<T> &array, Comparator comparator = Comparator()) {
-        _array = array;
-        _comparator = comparator;
+    explicit Heap(const DynamicArray<T> &array, Comparator comparator = Comparator()) : _array(array), _comparator(comparator) {
         for (int i = this->_array.getSize() / 2 - 1; i >= 0; --i)
             siftDown(i);
     }
 
-    Heap(const Heap &other) {
-        this->_comparator = other._comparator;
-        this->_array = other._array;
-    }
+    Heap(const Heap &other) : _array(other._array), _comparator(other._comparator) { }
 
     Heap(Heap &&other) noexcept {
         _array = std::move(other._array);
@@ -84,14 +76,14 @@ public:
     }
 
     void push(const T &element) {
-        _array.push_back(element);
+        _array.pushBack(element);
         siftUp(_array.getSize() - 1);
     }
 
     void pop() {
         if (!_array.isEmpty()) {
             std::swap(_array[0], _array[_array.getSize() - 1]);
-            _array.pop_back();
+            _array.popBack();
             if (!_array.isEmpty()) {
                 siftDown(0);
             }
