@@ -1,13 +1,13 @@
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
-bool isBitNumberValid(int value, int bit_number){
+bool isBitNumberValid(int value, int bit_number) {
     int a = 1;
     a <<= bit_number;
     return value >= a;
 }
 
-int invertBit(int value, int bit_number){
+int invertBit(int value, int bit_number) {
     if (value == 1)
         return 0;
 
@@ -16,7 +16,7 @@ int invertBit(int value, int bit_number){
     inverted_bit = value >> bit_number;
     inverted_bit ^= 1;
 
-    if (inverted_bit & 1){
+    if (inverted_bit & 1) {
         inverted_bit <<= bit_number;
         return value | inverted_bit;
     } else {
@@ -24,10 +24,4 @@ int invertBit(int value, int bit_number){
         inverted_bit |= 1;
         return inverted_bit & value;
     }
-}
-
-int main(){
-    int value, bit_number;
-    std::cin >> value >> bit_number;
-    std::cout << invertBit(value, bit_number);
 }

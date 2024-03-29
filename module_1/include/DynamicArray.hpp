@@ -1,10 +1,7 @@
+#pragma once
 #include <cassert>
-#include <algorithm>
-#include <iostream>
 
-#define PRINT_ARRAY_INFO(array) std::cout << "Size: " << array.getSize() << ", Capacity: " << array.getCapacity() << std::endl;
-
-template<typename T>
+template <typename T>
 class DynamicArray {
 private:
     T *_data;
@@ -24,6 +21,7 @@ public:
     class Iterator {
     private:
         T *_iter;
+
     public:
         Iterator() { _iter = nullptr; }
 
@@ -35,7 +33,7 @@ public:
 
         const T &operator*() const { return *_iter; }
 
-        void clear(){ this->~Iterator(); }
+        void clear() { this->~Iterator(); }
 
         Iterator &operator=(const Iterator &other) {
             if (this == &other) {
@@ -110,6 +108,16 @@ public:
         }
     }
 
+    DynamicArray(DynamicArray<T> &&other) noexcept {
+        _data = other._data;
+        _size = other._size;
+        _capacity = other._capacity;
+
+        other._data = nullptr;
+        other._capacity = 0;
+        other._size = 0;
+    }
+
     ~DynamicArray() {
         _size = 0;
         _capacity = 0;
@@ -140,7 +148,20 @@ public:
         return *this;
     }
 
-    [[nodiscard]] constexpr T& operator[](int index) const {
+    DynamicArray<T> &operator=(DynamicArray<T> &&other) noexcept {
+        if (this != &other) {
+            delete[] _data;
+            _data = other._data;
+            _size = other._size;
+            _capacity = other._capacity;
+            other._data = nullptr;
+            other._size = 0;
+            other._capacity = 0;
+        }
+        return *this;
+    }
+
+    [[nodiscard]] constexpr T &operator[](int index) const {
         assert(index >= 0 && index < _size && _data != nullptr);
         return _data[index];
     }
@@ -182,7 +203,7 @@ public:
     constexpr void pop_back() {
         if (_size == 0)
             return;
-        _data[_size - 1] = 0;
+        //_data[_size - 1] = 0;
         --_size;
     }
 
@@ -203,72 +224,3 @@ public:
         std::cout << std::endl;
     }
 };
-
-class Queue {
-private:
-    DynamicArray<int> array;
-    int head;
-    int tail;
-    int array_size;
-public:
-    explicit Queue(int size) : head(0), tail(0), array_size(size), array(0, size) {}
-    ~Queue(){
-        array.clear();
-        head = 0;
-        tail = 0;
-    }
-
-    void Enqueue(int elem){
-        array[tail] = elem;
-        ++tail;
-        if (tail == array_size) {
-            tail = 0;
-        }
-    }
-
-    int Dequeue(){
-        if (head == tail) {
-            return -1;
-        }
-        int value = array[head];
-        ++head;
-        if (head == array_size) {
-            head = 0;
-        }
-        return value;
-    }
-};
-
-void parseIO(std::istream& input_stream, std::ostream& output_stream){
-    int number, command_id, value, expected_value;
-    bool isAllExpected = true;
-    input_stream >> number;
-    Queue queue(number);
-    for (int i = 0; i < number; ++i){
-        input_stream >> command_id >> value;
-        switch (command_id) {
-            case 2:
-                expected_value = queue.Dequeue();
-                if (expected_value != value){
-                    isAllExpected = false;
-                }
-                break;
-            case 3:
-                queue.Enqueue(value);
-                break;
-
-            default:
-                return;
-        }
-    }
-
-    if (isAllExpected){
-        output_stream << "YES";
-    } else {
-        output_stream << "NO";
-    }
-}
-int main() {
-    parseIO(std::cin, std::cout);
-}
-
