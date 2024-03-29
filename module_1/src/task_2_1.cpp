@@ -45,7 +45,3 @@ void IO(std::istream& input_stream){
         exponentialSearch(a, m, b[i]);
     }
 }
-
-int main(){
-    IO(std::cin);
-}

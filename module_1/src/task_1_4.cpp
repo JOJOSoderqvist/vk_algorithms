@@ -25,9 +25,3 @@ int invertBit(int value, int bit_number){
         return inverted_bit & value;
     }
 }
-
-int main(){
-    int value, bit_number;
-    std::cin >> value >> bit_number;
-    std::cout << invertBit(value, bit_number);
-}

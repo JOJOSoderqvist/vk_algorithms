@@ -1,27 +1,4 @@
 #include <cassert>
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-#define PRINT_ARRAY_INFO(array) std::cout << "Size: " << array.getSize() << ", Capacity: " << array.getCapacity() << std::endl;
-
-template<typename T1, typename T2>
-struct pair{
-    T1 _first;
-    T2 _second;
-
-    pair() = default;
-
-    pair(T1 first, T2 second){
-        this->makePair(first, second);
-    }
-
-    void makePair(T1 first, T2 second){
-        _first = first;
-        _second = second;
-    }
-};
-
 
 template<typename T>
 class DynamicArray {
@@ -129,6 +106,16 @@ public:
         }
     }
 
+    DynamicArray(DynamicArray<T> &&other) noexcept {
+        _data = other._data;
+        _size = other._size;
+        _capacity = other._capacity;
+
+        other._data = nullptr;
+        other._capacity = 0;
+        other._size = 0;
+    }
+
     ~DynamicArray() {
         _size = 0;
         _capacity = 0;
@@ -156,6 +143,20 @@ public:
         _capacity = right._capacity;
         _data = new T[_capacity];
         std::copy(right._data, right._data + right._size, _data);
+        return *this;
+    }
+
+
+    DynamicArray<T> &operator=(DynamicArray<T> &&other) noexcept {
+        if (this != &other) {
+            delete[] _data;
+            _data = other._data;
+            _size = other._size;
+            _capacity = other._capacity;
+            other._data = nullptr;
+            other._size = 0;
+            other._capacity = 0;
+        }
         return *this;
     }
 
@@ -222,180 +223,3 @@ public:
         std::cout << std::endl;
     }
 };
-
-
-template<typename T>
-struct DefaultComparator {
-    bool operator()(const T &left, const T &right) const {
-        return left < right;
-    }
-};
-
-
-
-template<typename T>
-struct XDDComparator {
-    bool operator()(const T &left, const T &right) const {
-        return left > right;
-    }
-};
-
-template<typename T>
-struct Descriptor{
-    T *_array;
-    size_t _index;
-
-    Descriptor() : _array(nullptr), _index(0){}
-
-    explicit Descriptor(T* array){
-        _array = array;
-        _index = 0;
-    }
-
-    ~Descriptor(){
-        _array = nullptr;
-    }
-
-    [[nodiscard]] constexpr T &operator[](int idx) const {
-        assert(idx >= 0 && idx < _index && _array != nullptr);
-        return &_array[idx];
-    }
-
-//    Descriptor& operator=(const Descriptor<T>& other) {
-//        if (this != &other) {
-//            _array = other._array;
-//            _index = other._index;
-//        }
-//        return *this;
-//    }
-
-    bool operator==(const Descriptor<T> &other) { return _array[_index] == other._array[other._index]; }
-
-    bool operator!=(const Descriptor<T> &other) { return _array[_index] != other._array[other._index]; }
-//[1, 2], [3, 4]
-    bool operator<(const Descriptor<T> &other) const { return _array[_index] < other._array[other._index]; }
-
-    bool operator>(const Descriptor<T> &other) const { return _array[_index] > other._array[other._index]; }
-
-    bool operator<=(const Descriptor<T> &other) const { return _array[_index] <= other._array[other._index]; }
-
-    bool operator>=(const Descriptor<T> &other) const { return _array[_index] >= other._array[other._index]; }
-};
-
-template<typename T, typename Comparator = DefaultComparator<T>>
-class Heap {
-private:
-    DynamicArray<T> _array;
-    Comparator _comparator;
-
-    void siftUp(int index) {
-        while (index > 0) {
-            int parent = (index - 1 ) / 2;
-            if (_comparator(_array[index], _array[parent]))
-                return;
-            std::swap(_array[index], _array[parent]);
-            index = parent;
-        }
-    }
-
-    void siftDown(int index) {
-        int left = 2 * index + 1;
-        int right = 2 * index + 2;
-        int actual = index;
-        if (left < _array.getSize() && !_comparator(_array[left], _array[index]))
-            actual = left;
-        if (right < _array.getSize() && !_comparator(_array[right], _array[actual]))
-            actual = right;
-        if (actual != index) {
-            std::swap(_array[index], _array[actual]);
-            siftDown(actual);
-        }
-    }
-
-public:
-    explicit Heap(Comparator comparator = Comparator()) {
-        _comparator = comparator;
-    }
-
-    Heap(size_t size, Comparator comparator = Comparator()) {
-        _comparator = comparator;
-        _array.reserve(size);
-    }
-
-    explicit Heap(const DynamicArray<T> &array, Comparator comparator = Comparator()) {
-        _array = array;
-        _comparator = comparator;
-        for (int i = this->_array.getSize() / 2 - 1; i >= 0; --i)
-            siftDown(i);
-    }
-
-    Heap(const Heap &other){
-        this->_comparator = other._comparator;
-        this->_array = other._array;
-    }
-
-    Heap(Heap &&) = delete;
-
-    ~Heap() {
-        _array.clear();
-    }
-
-    Heap &operator=(const Heap &other){
-        if (this != &other){
-            this->_array = other._array;
-            this->_comparator = other._comparator;
-        }
-        return *this;
-    }
-
-    Heap &operator=(Heap &&heap) = delete;
-
-    [[nodiscard]] const T& top() const {
-        return _array[0];
-    }
-
-    void push(const T& element) {
-        _array.push_back(element);
-        siftUp(_array.getSize() - 1);
-    }
-
-
-    void pop() {
-        if (!_array.isEmpty()){
-            /// TODO: OWN STD SWAP -> temp descriptor
-            std::swap(_array[0], _array[_array.getSize() - 1]);
-            _array.pop_back();
-            if( !_array.isEmpty() ) {
-                siftDown(0);
-            }
-        }
-    }
-};
-
-bool operator<(const pair<Descriptor<int>, int>& lhs, const pair<Descriptor<int>, int>& rhs) {
-    return lhs._first < rhs._first;
-}
-
-
-
-Heap<pair<Descriptor<int>, int>> parseHeapFromIO(std::istream& input_stream){
-    int array_count, array_size, element;
-    Heap<pair<Descriptor<int>, int>> resulting_heap;
-    input_stream >> array_count;
-    for (int i = 0; i < array_count; ++i) {
-        input_stream >> array_size;
-        int* temp_array = new int[array_size];
-        for (int j = 0; j < array_size; ++j) {
-            input_stream >> element;
-            temp_array[j] = element;
-        }
-        Descriptor<int> descriptor(temp_array);
-        pair<Descriptor<int>, int> logical_pair(descriptor, array_size);
-        resulting_heap.push(logical_pair);
-    }
-    return resulting_heap;
-}
-
-int main() {
-    return 0;
-}
