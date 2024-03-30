@@ -2,7 +2,7 @@
 #include <iostream>
 
 namespace task_3_1 {
-    void IO(std::istream &input_stream, std::ostream &output_stream) {
+    void IO(std::istream& input_stream, std::ostream& output_stream) {
         int number, command_id, value, expected_value;
         bool isAllExpected = true;
         input_stream >> number;

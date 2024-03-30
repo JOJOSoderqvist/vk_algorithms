@@ -5,12 +5,12 @@
 
 template <typename T>
 struct Descriptor {
-    T *_array;
+    T* _array;
     size_t _index;
 
     Descriptor() : _array(nullptr), _index(0) {}
 
-    explicit Descriptor(T *array) {
+    explicit Descriptor(T* array) {
         _array = array;
         _index = 0;
     }
@@ -19,47 +19,47 @@ struct Descriptor {
         _array = nullptr;
     }
 
-    [[nodiscard]] constexpr T &operator[](int idx) const {
+    [[nodiscard]] constexpr T& operator[](int idx) const {
         assert(idx >= 0 && idx < _index && _array != nullptr);
         return &_array[idx];
     }
 
-    bool operator==(const Descriptor<T> &other) { return _array[_index] == other._array[other._index]; }
+    bool operator==(const Descriptor<T>& other) { return _array[_index] == other._array[other._index]; }
 
-    bool operator!=(const Descriptor<T> &other) { return _array[_index] != other._array[other._index]; }
+    bool operator!=(const Descriptor<T>& other) { return _array[_index] != other._array[other._index]; }
 
-    bool operator<(const Descriptor<T> &other) const { return _array[_index] < other._array[other._index]; }
+    bool operator<(const Descriptor<T>& other) const { return _array[_index] < other._array[other._index]; }
 
-    bool operator>(const Descriptor<T> &other) const { return _array[_index] > other._array[other._index]; }
+    bool operator>(const Descriptor<T>& other) const { return _array[_index] > other._array[other._index]; }
 
-    bool operator<=(const Descriptor<T> &other) const { return _array[_index] <= other._array[other._index]; }
+    bool operator<=(const Descriptor<T>& other) const { return _array[_index] <= other._array[other._index]; }
 
-    bool operator>=(const Descriptor<T> &other) const { return _array[_index] >= other._array[other._index]; }
+    bool operator>=(const Descriptor<T>& other) const { return _array[_index] >= other._array[other._index]; }
 };
 
-bool operator<(const Pair<Descriptor<int>, int> &lhs, const Pair<Descriptor<int>, int> &rhs) {
+bool operator<(const Pair<Descriptor<int>, int>& lhs, const Pair<Descriptor<int>, int>& rhs) {
     return lhs._first < rhs._first;
 }
 
-bool operator>(const Pair<Descriptor<int>, int> &lhs, const Pair<Descriptor<int>, int> &rhs) {
+bool operator>(const Pair<Descriptor<int>, int>& lhs, const Pair<Descriptor<int>, int>& rhs) {
     return lhs._first > rhs._first;
 }
 
-bool operator<=(const Pair<Descriptor<int>, int> &lhs, const Pair<Descriptor<int>, int> &rhs) {
+bool operator<=(const Pair<Descriptor<int>, int>& lhs, const Pair<Descriptor<int>, int>& rhs) {
     return lhs._first <= rhs._first;
 }
 
-bool operator>=(const Pair<Descriptor<int>, int> &lhs, const Pair<Descriptor<int>, int> &rhs) {
+bool operator>=(const Pair<Descriptor<int>, int>& lhs, const Pair<Descriptor<int>, int>& rhs) {
     return lhs._first >= rhs._first;
 }
 
-Heap<Pair<Descriptor<int>, int>> parseHeapFromIO(std::istream &input_stream) {
+Heap<Pair<Descriptor<int>, int>> parseHeapFromIO(std::istream& input_stream) {
     int array_count, array_size, element;
     Heap<Pair<Descriptor<int>, int>> resulting_heap;
     input_stream >> array_count;
     for (int i = 0; i < array_count; ++i) {
         input_stream >> array_size;
-        int *temp_array = new int[array_size];
+        int* temp_array = new int[array_size];
         for (int j = 0; j < array_size; ++j) {
             input_stream >> element;
             temp_array[j] = element;
@@ -71,7 +71,7 @@ Heap<Pair<Descriptor<int>, int>> parseHeapFromIO(std::istream &input_stream) {
     return resulting_heap;
 }
 
-void solve(Heap<Pair<Descriptor<int>, int>> &heap, std::ostream &stream) {
+void solve(Heap<Pair<Descriptor<int>, int>>& heap, std::ostream& stream) {
     while (!heap.isEmpty()) {
         Pair<Descriptor<int>, int> smallest = heap.top();
         heap.pop();
@@ -88,7 +88,7 @@ void solve(Heap<Pair<Descriptor<int>, int>> &heap, std::ostream &stream) {
 }
 
 namespace task_4_1 {
-    void IO(std::istream &input_stream, std::ostream &output_stream) {
+    void IO(std::istream& input_stream, std::ostream& output_stream) {
         Heap<Pair<Descriptor<int>, int>> heap = parseHeapFromIO(input_stream);
         solve(heap, output_stream);
     }

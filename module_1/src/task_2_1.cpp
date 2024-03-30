@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 
-bool binarySearch(const int *arr, int key, int left_bound, int right_bound) {
+bool binarySearch(const int* arr, int key, int left_bound, int right_bound) {
     int result = -1;
     while (left_bound <= right_bound) {
         int mid_elem_index = (left_bound + right_bound) / 2;
@@ -20,7 +20,7 @@ bool binarySearch(const int *arr, int key, int left_bound, int right_bound) {
     return false;
 }
 
-void exponentialSearch(const int *arr, int size, int key) {
+void exponentialSearch(const int* arr, int size, int key) {
     int right_bound = 1;
     while (right_bound < size && arr[right_bound] < key) {
         right_bound *= 2;
@@ -30,7 +30,7 @@ void exponentialSearch(const int *arr, int size, int key) {
 }
 
 namespace task_2_1 {
-    void IO(std::istream &input_stream) {
+    void IO(std::istream& input_stream) {
         int m, n;
         input_stream >> m >> n;
         assert(m > 0 && n > 0);

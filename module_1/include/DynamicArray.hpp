@@ -4,13 +4,13 @@
 template <typename T>
 class DynamicArray {
 private:
-    T *_data;
+    T* _data;
     size_t _size;
     size_t _capacity;
 
     void addCapacity() {
         size_t new_capacity = (_capacity == 0) ? 1 : _capacity * 2;
-        T *new_data = new T[new_capacity];
+        T* new_data = new T[new_capacity];
         std::copy(_data, _data + _size, new_data);
         delete[] _data;
         _data = new_data;
@@ -20,22 +20,22 @@ private:
 public:
     class Iterator {
     private:
-        T *_iter;
+        T* _iter;
 
     public:
         Iterator() { _iter = nullptr; }
 
-        explicit Iterator(T *data) { _iter = data; }
+        explicit Iterator(T* data) { _iter = data; }
 
         ~Iterator() { _iter = nullptr; }
 
-        T &operator*() { return *_iter; }
+        T& operator*() { return *_iter; }
 
-        const T &operator*() const { return *_iter; }
+        const T& operator*() const { return *_iter; }
 
         void clear() { this->~Iterator(); }
 
-        Iterator &operator=(const Iterator &other) {
+        Iterator& operator=(const Iterator& other) {
             if (this == &other) {
                 return *this;
             }
@@ -43,22 +43,22 @@ public:
             return *this;
         }
 
-        Iterator &operator++() {
+        Iterator& operator++() {
             ++_iter;
             return *this;
         }
 
-        Iterator &operator--() {
+        Iterator& operator--() {
             --_iter;
             return *this;
         }
 
-        Iterator &operator+=(size_t size) {
+        Iterator& operator+=(size_t size) {
             _iter += size;
             return *this;
         }
 
-        Iterator &operator-=(size_t size) {
+        Iterator& operator-=(size_t size) {
             _iter -= size;
             return *this;
         }
@@ -75,24 +75,24 @@ public:
             return temp;
         }
 
-        Iterator &operator[](size_t size) { return *(_iter + size); }
+        Iterator& operator[](size_t size) { return *(_iter + size); }
 
-        bool operator==(const Iterator &other) { return _iter == other._iter; }
+        bool operator==(const Iterator& other) { return _iter == other._iter; }
 
-        bool operator!=(const Iterator &other) { return _iter != other._iter; }
+        bool operator!=(const Iterator& other) { return _iter != other._iter; }
 
-        bool operator<(const Iterator &other) const { return _iter < other._iter; }
+        bool operator<(const Iterator& other) const { return _iter < other._iter; }
 
-        bool operator>(const Iterator &other) const { return _iter > other._iter; }
+        bool operator>(const Iterator& other) const { return _iter > other._iter; }
 
-        bool operator<=(const Iterator &other) const { return _iter <= other._iter; }
+        bool operator<=(const Iterator& other) const { return _iter <= other._iter; }
 
-        bool operator>=(const Iterator &other) const { return _iter >= other._iter; }
+        bool operator>=(const Iterator& other) const { return _iter >= other._iter; }
     };
 
     DynamicArray() : _data(nullptr), _size(0), _capacity(0) {}
 
-    DynamicArray(const DynamicArray<T> &array) : _size(array._size), _capacity(array._capacity) {
+    DynamicArray(const DynamicArray<T>& array) : _size(array._size), _capacity(array._capacity) {
         _data = new T[_capacity];
         std::copy(array._data, array._data + array._size, _data);
     }
@@ -104,7 +104,7 @@ public:
         }
     }
 
-    DynamicArray(DynamicArray<T> &&other) noexcept : _data(other._data), _size(other._size), _capacity(other._capacity) {
+    DynamicArray(DynamicArray<T>&& other) noexcept : _data(other._data), _size(other._size), _capacity(other._capacity) {
         other._data = nullptr;
         other._capacity = 0;
         other._size = 0;
@@ -124,7 +124,7 @@ public:
         _data = nullptr;
     }
 
-    bool operator==(const DynamicArray<T> &right) {
+    bool operator==(const DynamicArray<T>& right) {
         if (this->_capacity != right._capacity || this->_size != right._size)
             return false;
 
@@ -136,7 +136,7 @@ public:
         return isEqual;
     }
 
-    DynamicArray<T> &operator=(const DynamicArray<T> &right) {
+    DynamicArray<T>& operator=(const DynamicArray<T>& right) {
         if (this == &right)
             return *this;
         delete _data;
@@ -147,7 +147,7 @@ public:
         return *this;
     }
 
-    DynamicArray<T> &operator=(DynamicArray<T> &&other) noexcept {
+    DynamicArray<T>& operator=(DynamicArray<T>&& other) noexcept {
         if (this != &other) {
             delete[] _data;
             _data = other._data;
@@ -160,7 +160,7 @@ public:
         return *this;
     }
 
-    [[nodiscard]] constexpr T &operator[](int index) const {
+    [[nodiscard]] constexpr T& operator[](int index) const {
         assert(index >= 0 && index < _size && _data != nullptr);
         return _data[index];
     }
@@ -169,7 +169,7 @@ public:
 
     [[nodiscard]] constexpr Iterator end() const { return Iterator(&_data[_size]); }
 
-    [[nodiscard]] constexpr T *data() const { return _data; }
+    [[nodiscard]] constexpr T* data() const { return _data; }
 
     [[nodiscard]] constexpr size_t getSize() const { return _size; }
 
@@ -184,7 +184,7 @@ public:
             return;
         }
         if (capacity > _capacity) {
-            T *temp_data = new T[capacity];
+            T* temp_data = new T[capacity];
             _capacity = capacity;
             std::copy(_data, _data + _size, temp_data);
             delete _data;
@@ -206,7 +206,7 @@ public:
         --_size;
     }
 
-    constexpr void swap(DynamicArray<T> &right) {
+    constexpr void swap(DynamicArray<T>& right) {
         std::swap(_size, right._size);
         std::swap(_capacity, right._capacity);
         std::swap(_data, right._data);

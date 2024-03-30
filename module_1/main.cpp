@@ -4,6 +4,11 @@
 #include "src/task_5_3.cpp"
 #include <iostream>
 
+
+// bool customComparator(const int& a, const int& b) {
+//     return a > b;
+// }   
+
 int main() {
     // DynamicArray<int> array{};
     // array.pushBack(1);
@@ -16,7 +21,7 @@ int main() {
     //     std::cout << elem << " ";
     // }
 
-    // mergeSort(array, array.getSize());
+    // mergeSort(array, array.getSize(), customComparator);
     // std::cout << std::endl;
 
     // for (auto &&elem : array) {

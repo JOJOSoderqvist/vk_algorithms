@@ -3,7 +3,7 @@
 
 template <typename T>
 struct DefaultComparator {
-    bool operator()(const T &left, const T &right) const {
+    bool operator()(const T& left, const T& right) const {
         return left > right;
     }
 };
@@ -39,20 +39,20 @@ private:
     }
 
 public:
-    explicit Heap(Comparator comparator = Comparator()) : _comparator(comparator) { }
+    explicit Heap(Comparator comparator = Comparator()) : _comparator(comparator) {}
 
     Heap(size_t size, Comparator comparator = Comparator()) : _comparator(comparator) {
         _array.reserve(size);
     }
 
-    explicit Heap(const DynamicArray<T> &array, Comparator comparator = Comparator()) : _array(array), _comparator(comparator) {
+    explicit Heap(const DynamicArray<T>& array, Comparator comparator = Comparator()) : _array(array), _comparator(comparator) {
         for (int i = this->_array.getSize() / 2 - 1; i >= 0; --i)
             siftDown(i);
     }
 
-    Heap(const Heap &other) : _array(other._array), _comparator(other._comparator) { }
+    Heap(const Heap& other) : _array(other._array), _comparator(other._comparator) {}
 
-    Heap(Heap &&other) noexcept {
+    Heap(Heap&& other) noexcept {
         _array = std::move(other._array);
         _comparator = std::move(other._comparator);
     }
@@ -61,7 +61,7 @@ public:
         _array.clear();
     }
 
-    Heap &operator=(const Heap &other) {
+    Heap& operator=(const Heap& other) {
         if (this != &other) {
             this->_array = other._array;
             this->_comparator = other._comparator;
@@ -69,13 +69,13 @@ public:
         return *this;
     }
 
-    Heap &operator=(Heap &&heap) = delete;
+    Heap& operator=(Heap&& heap) = delete;
 
-    [[nodiscard]] const T &top() const {
+    [[nodiscard]] const T& top() const {
         return _array[0];
     }
 
-    void push(const T &element) {
+    void push(const T& element) {
         _array.pushBack(element);
         siftUp(_array.getSize() - 1);
     }

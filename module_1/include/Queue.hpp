@@ -10,7 +10,7 @@ private:
 
 public:
     explicit Queue(int size) : head(0), tail(0), array_size(size), array(0, size) {}
-    
+
     ~Queue() {
         array.clear();
         head = 0;
