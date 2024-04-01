@@ -7,10 +7,6 @@ enable_testing()
 
 set(CMAKE_CXX_FLAGS -fsanitize=leak)
 
-set(SOURCE_FILES src/task_1_4.cpp src/task_2_1.cpp src/task_3_1.cpp src/task_4_1.cpp)
-
-set(HEADER_FILES include/helpers.cpp)
-
 add_executable(module_1 main.cpp)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
