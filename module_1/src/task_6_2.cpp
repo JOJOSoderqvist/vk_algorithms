@@ -1,17 +1,8 @@
+#include "../include/MinMax.hpp"
 #include <iostream>
 
 template <typename T>
 using comp_func = bool (*)(const T& l, const T& r);
-
-template <typename T>
-T min(T l, T r) {
-    return ((l == r) ? l : ((l < r) ? l : r));
-}
-
-template <typename T>
-T max(T l, T r) {
-    return ((l == r) ? l : ((l > r) ? l : r));
-}
 
 template <typename T>
 T median_of_three(T* array, int left, int right) {
