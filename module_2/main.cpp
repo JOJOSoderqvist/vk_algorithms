@@ -1,11 +1,5 @@
-#include "include/BinaryTree.hpp"
-#include <iostream>
+#include "src/task_2_1.cpp"
 
 int main() {
-    BinaryTree tree(5);
-    tree.insertNode(2);
-    tree.insertNode(6);
-    tree.insertNode(1);
-    tree.insertNode(3);
-    std::cout << "hello world";
+    task_2_1::IO(std::cin, std::cout);
 }

@@ -1,7 +1,12 @@
 #pragma once
-#include <iostream>
 #include <stack>
 
+template<typename T>
+using compFunc = bool (*)(const T& l, const T& r);
+
+bool defaultCompFunc(const int& l, const int& r) {
+    return l < r;
+}
 
 class BinaryTree {
 public:
@@ -11,27 +16,23 @@ public:
         Node* right;
         int value;
 
-        explicit Node() : parent(nullptr), left(nullptr), right(nullptr), value(0) {
+        Node() : parent(nullptr), left(nullptr), right(nullptr), value(0) {
         }
 
         explicit Node(const int value) : parent(nullptr), left(nullptr), right(nullptr), value(value) {
         }
-
-        Node(Node* left, Node* right, const int value) : parent(nullptr), left(left), right(right), value(value) {
-        }
     };
 
     Node* root;
-    BinaryTree() {
-        root = new Node();
-    }
+
+    BinaryTree() = default;
 
     explicit BinaryTree(const int value) {
         root = new Node(value);
     }
 
     ~BinaryTree() {
-        std::stack<Node*> s1, s2;
+        std::stack<Node *> s1, s2;
         s1.push(root);
         while (!s1.empty()) {
             auto elem = s1.top();
@@ -44,20 +45,19 @@ public:
         }
         while (!s2.empty()) {
             const auto to_remove = s2.top();
-            std::cout << to_remove->value;
             s2.pop();
             delete to_remove;
         }
     }
 
-    void insertNode(const int value) {
+    void insertNode(const int value, compFunc<int> comp) {
         auto* temp = root;
         if (root == nullptr) {
             root = new Node(value);
             return;
         }
         while (temp != nullptr) {
-            if (value < temp->value) {
+            if (comp(value, temp->value)) {
                 if (temp->left != nullptr) {
                     temp = temp->left;
                 } else {
