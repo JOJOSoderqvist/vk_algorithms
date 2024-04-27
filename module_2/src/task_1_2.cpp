@@ -4,7 +4,7 @@
 
 namespace task_1_2 {
     void IO(std::istream& input_stream, std::ostream& output_stream) {
-        HashTable<std::string, StringHasher> table;
+        HashTable<std::string> table;
         char op;
         std::string key;
         while (input_stream >> op >> key) {

@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <functional>
 #include <string>
 #include <iostream>
 
@@ -38,48 +37,59 @@ struct HashTableElement {
 
 class StringHasher {
 private:
-    size_t _prime;
-
+    size_t _main_prime;
+    size_t _secondary_prime;
 public:
-    explicit StringHasher(const size_t prime = 211) : _prime(prime) {
+    explicit StringHasher(const size_t prime = 211, const size_t secondary_prime = 101) : _main_prime(prime), _secondary_prime(secondary_prime) {
     }
 
     size_t operator()(const std::string& str) const {
         size_t hash = 0;
         for (const char i: str) {
-            hash = hash * _prime + i;
+            hash = hash * _main_prime + i;
         }
-        return hash;
+        return hash ? hash : 1;
+    }
+
+
+    [[nodiscard]] size_t secondary_hash(const std::string& str) const {
+        size_t hash = 0;
+        for (const char i: str) {
+            hash = hash * _secondary_prime + i;
+        }
+        return hash ? 2 * hash + 1 : 1;
     }
 };
 
-template<typename T, typename Hasher = std::hash<T>>
+template<typename T, typename Hasher = StringHasher>
 class HashTable {
 private:
     void rehash() {
-        std::cout << _number_of_filled << '\n';
         std::vector<HashTableElement<T>> new_table_data(_table_data.size() * 2);
         for (int i = 0; i < _table_data.size(); ++i) {
             auto elem = _table_data[i];
-            auto new_hash = _hasher(elem._data) % new_table_data.size();
-            if (new_table_data[new_hash]._element_state == HashTableElement<T>::ElementState::KEY) {
+            size_t new_main_hash = _hasher(elem._data) % new_table_data.size();
+            const size_t secondary_hash = _hasher.secondary_hash(elem._data) % new_table_data.size();
+
+            if (new_table_data[new_main_hash]._element_state == HashTableElement<T>::ElementState::KEY) {
                 int counter = 0;
-                for (size_t j = new_hash + 1; counter < new_table_data.size(); ++j, ++counter) {
-                    if (j >= _table_data.size())
-                        j = 0;
-                    if (_table_data[j]._element_state == HashTableElement<T>::ElementState::NIL) {
-                        new_table_data[j] = elem;
+                for (; counter < new_table_data.size(); ++counter) {
+                    if (new_main_hash >= _table_data.size())
+                        new_main_hash = 0;
+                    if (_table_data[new_main_hash]._element_state == HashTableElement<T>::ElementState::NIL) {
+                        new_table_data[new_main_hash] = elem;
                     }
+                    new_main_hash = (new_main_hash + secondary_hash) % new_table_data.size();
                 }
             } else
-                new_table_data[new_hash] = elem;
+                new_table_data[new_main_hash] = elem;
         }
         _table_data = new_table_data;
     }
 
     std::vector<HashTableElement<T>> _table_data;
     Hasher _hasher;
-    double _number_of_filled;
+    float _number_of_filled;
 
 public:
     explicit HashTable(size_t initial_size = INITIAL_SIZE): _table_data(initial_size), _number_of_filled(0) {
@@ -101,64 +111,72 @@ public:
             return true;
         }
 
-        const size_t hash = _hasher(key) % _table_data.size();
+        size_t main_hash = _hasher(key) % _table_data.size();
+        const size_t secondary_hash = _hasher.secondary_hash(key) % _table_data.size();
         int counter = 0;
         int del_pos = -1;
-        for (size_t i = hash; counter < _table_data.size(); ++i, ++counter) {
-            if (i >= _table_data.size())
-                i = 0;
-            auto current_table_elem = _table_data[i];
+        for (; counter < _table_data.size(); ++counter) {
+            if (main_hash >= _table_data.size())
+                main_hash = 0;
+            auto current_table_elem = _table_data[main_hash];
 
-            if (current_table_elem._data == key && current_table_elem._element_state != HashTableElement<
-                    T>::ElementState::DEL)
+            if (current_table_elem._data == key && current_table_elem._element_state == HashTableElement<
+                    T>::ElementState::KEY)
                 return false;
 
             if (current_table_elem._element_state == HashTableElement<T>::ElementState::DEL)
-                del_pos = static_cast<int>(i);
+                del_pos = static_cast<int>(main_hash);
 
             if (current_table_elem._element_state == HashTableElement<T>::ElementState::NIL) {
                 if (del_pos != -1)
                     _table_data[del_pos] = HashTableElement<T>(key);
                 else
-                    _table_data[i] = HashTableElement<T>(key);
+                    _table_data[main_hash] = HashTableElement<T>(key);
                 ++_number_of_filled;
                 return true;
             }
+
+            main_hash = (main_hash + secondary_hash) % _table_data.size();
         }
     }
 
     bool has(const T& key) {
-        const size_t hash = _hasher(key) % _table_data.size();
+        size_t main_hash = _hasher(key) % _table_data.size();
+        const size_t secondary_hash = _hasher.secondary_hash(key) % _table_data.size();
         int counter = 0;
-        for (size_t i = hash; counter < _table_data.size(); ++i, ++counter) {
-            if (i == _table_data.size())
-                i = 0;
-            auto current_table_elem = _table_data[i];
+        for (; counter < _table_data.size(); ++counter) {
+            if (main_hash == _table_data.size())
+                main_hash = 0;
+            auto current_table_elem = _table_data[main_hash];
             if (current_table_elem._data == key &&
                 current_table_elem._element_state != HashTableElement<T>::ElementState::DEL)
                 return true;
 
             if (current_table_elem._element_state == HashTableElement<T>::ElementState::NIL)
                 return false;
+            main_hash = (main_hash + secondary_hash) % _table_data.size();
+
         }
         return false;
     }
 
     bool remove(const T& key) {
-        const size_t hash = _hasher(key) % _table_data.size();
+        size_t main_hash = _hasher(key) % _table_data.size();
+        const size_t secondary_hash = _hasher.secondary_hash(key) % _table_data.size();
         int counter = 0;
-        for (size_t i = hash; counter < _table_data.size(); ++i, ++counter) {
-            if (i >= _table_data.size())
-                i = 0;
-            auto current_table_elem = _table_data[i];
+        for (; counter < _table_data.size(); ++counter) {
+            if (main_hash >= _table_data.size())
+                main_hash = 0;
+            auto current_table_elem = _table_data[main_hash];
             if (current_table_elem._data == key && current_table_elem._element_state != HashTableElement<
                     T>::ElementState::DEL) {
-                _table_data[i]._element_state = HashTableElement<T>::ElementState::DEL;
+                _table_data[main_hash]._element_state = HashTableElement<T>::ElementState::DEL;
                 return true;
             }
 
             if (current_table_elem._element_state == HashTableElement<T>::ElementState::NIL)
                 return false;
+            main_hash = (main_hash + secondary_hash) % _table_data.size();
         }
     }
 };
