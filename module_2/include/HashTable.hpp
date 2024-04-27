@@ -6,7 +6,8 @@
 
 
 constexpr int INITIAL_SIZE = 8;
-constexpr float MAX_FILLED_RATIO = 3.f/4;
+constexpr float MAX_FILLED_RATIO = 3.f / 4;
+
 template<typename T>
 struct HashTableElement {
     enum class ElementState {
@@ -33,18 +34,19 @@ struct HashTableElement {
     ~HashTableElement() {
         _element_state = ElementState::NIL;
     }
-
 };
 
 class StringHasher {
 private:
     size_t _prime;
+
 public:
-    explicit StringHasher(const size_t prime = 211) : _prime(prime){}
+    explicit StringHasher(const size_t prime = 211) : _prime(prime) {
+    }
 
     size_t operator()(const std::string& str) const {
         size_t hash = 0;
-        for (const char i : str) {
+        for (const char i: str) {
             hash = hash * _prime + i;
         }
         return hash;
@@ -78,8 +80,10 @@ private:
     std::vector<HashTableElement<T>> _table_data;
     Hasher _hasher;
     double _number_of_filled;
+
 public:
-    explicit HashTable(size_t initial_size = INITIAL_SIZE): _table_data(initial_size), _number_of_filled(0) {}
+    explicit HashTable(size_t initial_size = INITIAL_SIZE): _table_data(initial_size), _number_of_filled(0) {
+    }
 
     ~HashTable() {
         _table_data.clear();
@@ -91,7 +95,7 @@ public:
             rehash();
 
         if (_table_data.empty()) {
-            auto elem = HashTableElement<T>(key, HashTableElement<T>::ElementState::KEY);
+            auto elem = HashTableElement<T>(key);
             _table_data.push_back(elem);
             ++_number_of_filled;
             return true;
@@ -105,7 +109,8 @@ public:
                 i = 0;
             auto current_table_elem = _table_data[i];
 
-            if (current_table_elem._data == key && current_table_elem._element_state != HashTableElement<T>::ElementState::DEL)
+            if (current_table_elem._data == key && current_table_elem._element_state != HashTableElement<
+                    T>::ElementState::DEL)
                 return false;
 
             if (current_table_elem._element_state == HashTableElement<T>::ElementState::DEL)
@@ -129,7 +134,8 @@ public:
             if (i == _table_data.size())
                 i = 0;
             auto current_table_elem = _table_data[i];
-            if (current_table_elem._data == key && current_table_elem._element_state != HashTableElement<T>::ElementState::DEL)
+            if (current_table_elem._data == key &&
+                current_table_elem._element_state != HashTableElement<T>::ElementState::DEL)
                 return true;
 
             if (current_table_elem._element_state == HashTableElement<T>::ElementState::NIL)
@@ -137,6 +143,7 @@ public:
         }
         return false;
     }
+
     bool remove(const T& key) {
         const size_t hash = _hasher(key) % _table_data.size();
         int counter = 0;
@@ -144,7 +151,8 @@ public:
             if (i >= _table_data.size())
                 i = 0;
             auto current_table_elem = _table_data[i];
-            if (current_table_elem._data == key && current_table_elem._element_state != HashTableElement<T>::ElementState::DEL) {
+            if (current_table_elem._data == key && current_table_elem._element_state != HashTableElement<
+                    T>::ElementState::DEL) {
                 _table_data[i]._element_state = HashTableElement<T>::ElementState::DEL;
                 return true;
             }
