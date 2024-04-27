@@ -1,5 +1,5 @@
 #include "src/task_2_1.cpp"
-#include "include/HashTable.hpp"
+#include "src/task_1_2.cpp"
 int main() {
-    task_2_1::IO(std::cin, std::cout);
+    task_1_2::IO(std::cin, std::cout);
 }
