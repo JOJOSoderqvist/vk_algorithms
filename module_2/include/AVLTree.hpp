@@ -1,9 +1,13 @@
 #pragma once
 
-#include <iostream>
-
-// дописать компаратор
 template<typename T>
+struct DefaultComparator {
+    bool operator()(const T& left, const T& right) const {
+        return left < right;
+    }
+};
+
+template<typename T, typename Comaparator = DefaultComparator<T>>
 class AvlTree {
     struct Node {
         explicit Node(const T& data)
@@ -34,7 +38,7 @@ public:
         while (tmp) {
             if (tmp->data == data)
                 return true;
-            if (tmp->data < data)
+            if (comaparator(tmp->data, data))
                 tmp = tmp->right;
             else
                 tmp = tmp->left;
@@ -45,6 +49,12 @@ public:
     void remove(const T& data) {
         root = removeInternal(root, data);
     }
+
+    T kthStatistic(const int index) {
+        Node* result = kthStatisticInternal(root, index);
+        return result->data;
+    }
+
 private:
     void destroyTree(Node* node) {
         if (node) {
@@ -96,7 +106,7 @@ private:
     Node* addInternal(Node* node, const T& data) {
         if (!node)
             return new Node(data);
-        if (node->data <= data)
+        if (comaparator(node->data, data))
             node->right = addInternal(node->right, data);
         else
             node->left = addInternal(node->left, data);
@@ -115,8 +125,29 @@ private:
     void fixCount(Node* node) {
         if (node == nullptr)
             return;
-        node->count = fixCount(node->left) + fixCount(node->right) + 1;
+        node->count = getCount(node->left) + getCount(node->right) + 1;
     }
+
+    size_t getCount(Node* node) {
+        return node? node->count : 0;
+    }
+
+    Node* kthStatisticInternal(Node* node, const int index) {
+        if (node == nullptr) {
+            return nullptr;
+        }
+
+        const int leftCount = getCount(node->left);
+
+        if (index < leftCount) {
+            return kthStatisticInternal(node->left, index);
+        }
+        if (index > leftCount) {
+            return kthStatisticInternal(node->right, index - leftCount - 1);
+        }
+        return node;
+    }
+
 
     int getBalance(Node* node) {
         return getHeight(node->right) - getHeight(node->left);
@@ -128,6 +159,8 @@ private:
         tmp->left = node;
         fixHeight(node);
         fixHeight(tmp);
+        fixCount(node);
+        fixCount(tmp);
         return tmp;
     }
 
@@ -137,11 +170,14 @@ private:
         tmp->right = node;
         fixHeight(node);
         fixHeight(tmp);
+        fixCount(node);
+        fixCount(tmp);
         return tmp;
     }
 
     Node* doBalance(Node* node) {
         fixHeight(node);
+        fixCount(node);
         switch (getBalance(node)) {
             case 2: {
                 if (getBalance(node->right) < 0)
@@ -158,4 +194,5 @@ private:
         }
     }
     Node* root;
+    Comaparator comaparator;
 };
