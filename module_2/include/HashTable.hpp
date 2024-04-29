@@ -36,9 +36,6 @@ struct HashTableElement {
 };
 
 class StringHasher {
-private:
-    size_t _main_prime;
-    size_t _secondary_prime;
 public:
     explicit StringHasher(const size_t prime = 211, const size_t secondary_prime = 101) : _main_prime(prime), _secondary_prime(secondary_prime) {
     }
@@ -59,38 +56,13 @@ public:
         }
         return hash ? 2 * hash + 1 : 1;
     }
+private:
+    size_t _main_prime;
+    size_t _secondary_prime;
 };
 
 template<typename T, typename Hasher = StringHasher>
 class HashTable {
-private:
-    void rehash() {
-        std::vector<HashTableElement<T>> new_table_data(_table_data.size() * 2);
-        for (int i = 0; i < _table_data.size(); ++i) {
-            auto elem = _table_data[i];
-            size_t new_main_hash = _hasher(elem._data) % new_table_data.size();
-            const size_t secondary_hash = _hasher.secondary_hash(elem._data) % new_table_data.size();
-
-            if (new_table_data[new_main_hash]._element_state == HashTableElement<T>::ElementState::KEY) {
-                int counter = 0;
-                for (; counter < new_table_data.size(); ++counter) {
-                    if (new_main_hash >= _table_data.size())
-                        new_main_hash = 0;
-                    if (_table_data[new_main_hash]._element_state == HashTableElement<T>::ElementState::NIL) {
-                        new_table_data[new_main_hash] = elem;
-                    }
-                    new_main_hash = (new_main_hash + secondary_hash) % new_table_data.size();
-                }
-            } else
-                new_table_data[new_main_hash] = elem;
-        }
-        _table_data = new_table_data;
-    }
-
-    std::vector<HashTableElement<T>> _table_data;
-    Hasher _hasher;
-    float _number_of_filled;
-
 public:
     explicit HashTable(size_t initial_size = INITIAL_SIZE): _table_data(initial_size), _number_of_filled(0) {
     }
@@ -120,8 +92,7 @@ public:
                 main_hash = 0;
             auto current_table_elem = _table_data[main_hash];
 
-            if (current_table_elem._data == key && current_table_elem._element_state == HashTableElement<
-                    T>::ElementState::KEY)
+            if (current_table_elem._data == key && current_table_elem._element_state == HashTableElement<T>::ElementState::KEY)
                 return false;
 
             if (current_table_elem._element_state == HashTableElement<T>::ElementState::DEL)
@@ -157,7 +128,6 @@ public:
             main_hash = (main_hash + secondary_hash) % _table_data.size();
 
         }
-        return false;
     }
 
     bool remove(const T& key) {
@@ -179,4 +149,33 @@ public:
             main_hash = (main_hash + secondary_hash) % _table_data.size();
         }
     }
+
+private:
+    void rehash() {
+        std::vector<HashTableElement<T>> new_table_data(_table_data.size() * 2);
+        for (int i = 0; i < _table_data.size(); ++i) {
+            auto elem = _table_data[i];
+            size_t new_main_hash = _hasher(elem._data) % new_table_data.size();
+            const size_t secondary_hash = _hasher.secondary_hash(elem._data) % new_table_data.size();
+
+            if (new_table_data[new_main_hash]._element_state == HashTableElement<T>::ElementState::KEY) {
+                int counter = 0;
+                for (; counter < new_table_data.size(); ++counter) {
+                    if (new_main_hash >= new_table_data.size())
+                        new_main_hash = 0;
+                    if (new_table_data[new_main_hash]._element_state == HashTableElement<T>::ElementState::NIL) {
+                        new_table_data[new_main_hash] = elem;
+                        break;
+                    }
+                    new_main_hash = (new_main_hash + secondary_hash) % new_table_data.size();
+                }
+            } else
+                new_table_data[new_main_hash] = elem;
+        }
+        _table_data = new_table_data;
+    }
+
+    std::vector<HashTableElement<T>> _table_data;
+    Hasher _hasher;
+    float _number_of_filled;
 };
